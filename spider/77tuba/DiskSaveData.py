@@ -9,13 +9,19 @@ class DiskDbHelper(object):
     def __init__(self,dbname):
         self.db = dbname + '.html'
         self.path = os.getcwd() + '/dir_' + dbname
-        self.json_base = dbname
 
+        if not os.path.exists('api'):
+            os.mkdir('api')
+        self.json_base = 'api/' + dbname
+        self.category = self.json_base + '/category'
+        self.img = self.json_base + '/img'
         if not os.path.exists(self.json_base):
-            os.mkdir(dbname)
+            os.mkdir(self.json_base)
+        if not os.path.exists(self.category):
+            os.mkdir(self.category)
+        if not os.path.exists(self.img):
+            os.mkdir(self.img)
 
-        if not os.path.exists(self.path):
-             os.mkdir(self.path)
 
 
     def saveItem(self,item):
@@ -60,7 +66,7 @@ class DiskDbHelper(object):
         response_result = {'status':'200'}
         response_result['data'] = [category_list]
         json_content = json.dumps(response_result)
-        name = self.json_base + '/' + 'category_' + id + '.json'
+        name = self.category + '/' + 'category_' + id + '.json'
         output = open(name, 'w')
         output.write(json_content)
         output.flush()
@@ -69,10 +75,11 @@ class DiskDbHelper(object):
 
     def writeImgDetailJson(self,id,img_list):
         if img_list and len(img_list) > 0:
+            print id
             response_result = {'status': '200'}
             response_result['data'] = [img_list]
             json_content = json.dumps(response_result)
-            name = self.json_base + '/' + id + '.json'
+            name = self.img + '/' + id + '.json'
             output = open(name, 'w')
             output.write(json_content)
             output.flush()

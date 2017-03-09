@@ -50,12 +50,15 @@ class TubaCategorySpider:
 
             xhs = tree.xpath('//ul[@class="file"]//img/@src')
             if xhs:
-                imgs = ImgeItems()
+
                 img_list = []
                 for  index in range(0,len(xhs)):
                      url = xhs[index]
                      if not xhs[index].startswith('http'):
                          url = self.host + url
+                     imgs = ImgeItems()
+                     imgs.img = url
+                     img_list.append(imgs.__dict__)
                      #print url
                      #self.downloadHelper.startDownload(self.category_name + '/' + modelName,url)
                      #self.dbHelpder.writeDetailPage(title, url)
@@ -81,12 +84,13 @@ class TubaCategorySpider:
             tree = html.fromstring(page.text)
             xhs = tree.xpath('//ul[@class="file"]//img/@src')
             if xhs:
-                imgs = ImgeItems()
+
                 img_list = []
                 for index in range(0, len(xhs)):
                     url = xhs[index]
                     if not xhs[index].startswith('http'):
                         url = self.host + url
+                    imgs = ImgeItems()
                     imgs.img = url
                     img_list.append(imgs.__dict__)
                     #self.downloadHelper.startDownload(self.category_name + '/' + modelName,url)
