@@ -7,13 +7,15 @@ from base_gif_spider.Const import GLOBAL_GIF_TABLE
 import time
 import base64
 import datetime
-
+from base_gif_spider.GifSpider import BaseGifSpider
 
 class DBHelper(object):
     create_gif_sql = 'insert into ' + GLOBAL_GIF_TABLE + ' (gif_title,gif_url,gif_id,create_time_stamp) values ("%s","%s","%s","%s");'
     query_gif_sql = "select * from " + GLOBAL_GIF_TABLE + " where gif_url = '%s'  "
     query_gif_limit_sql = "select * from " + GLOBAL_GIF_TABLE +  " order by create_time_stamp asc limit %s,%s"
+    query_all = "select gif_url from " + GLOBAL_GIF_TABLE
     delete_gif_sql = "delete from " + GLOBAL_GIF_TABLE + " where gif_url = '%s' "
+    set_expire_url_sql = "update " + GLOBAL_GIF_TABLE + "  set gif_flag =1 where gif_url = '%s' "
     conn = MySQLdb.connect(
         host='localhost',
         port=3306,
@@ -92,10 +94,37 @@ class DBHelper(object):
         query_url = self.delete_gif_sql % (url)
         print query_url
         count = cursor.execute(query_url)
+        self.conn.commit()
+        print count
         if count > 0:
             return True
-
         return False
+
+    def deleteAll404GifUrls(self):
+        cursor = self.conn.cursor()
+        count = cursor.execute(self.query_all)
+        spider = BaseGifSpider("delete")
+        results = cursor.fetchall()
+        for url in results:
+            print url[0]
+            if not spider.isGifUrlAvailable(url[0]):
+                print url[0]
+                print self.deleteGifItemByUrl(url[0])
+        self.conn.commit()
+
+
+
+    def setGifUrlExpireFlag(self,url):
+        cursor = self.conn.cursor()
+        update_url = self.set_expire_url_sql%(url)
+        print update_url
+        count = cursor.execute(update_url)
+        self.conn.commit()
+        print count
+
+
+
+
 
 
 if __name__ == '__main__':
@@ -103,7 +132,8 @@ if __name__ == '__main__':
     # item.gif_title = "刚被人从陷阱里解救出来，在外放生…… 结果回到大自然还不到5秒…. 又钻进了人类的陷阱里…"
     # item.gif_url = "http://scimg.jb51.net/allimg/170312/2-1F312113212160.gif"
     helper = DBHelper()
-    helper.getGifItemsLimit(0,10);
+    helper.deleteAll404GifUrls()
+    print 'finish.......'
     #helper.saveGifItem(item)
     #item2 = helper.getGifItemByUrl("http://scimg.jb51.net/allimg/170308/2-1F30R13535444.gif")
     #print item2

@@ -75,12 +75,19 @@ class ScJbSpider(BaseGifSpider):
                         titleLength = len(title_list)
                         for index in range(0, len(srcXhs)):
                             href = srcXhs[index]
+                            if not href.startswith("http:"):
+                                href = self.domain + href
+
                             if href.endswith('.gif'):
                                 if index < titleLength:
-                                    item = GifItem()
-                                    item.gif_url = href
-                                    item.gif_title = title_list[index]
-                                    self.dbHelper.saveGifItem(item)
+                                    if self.isGifUrlAvailable(href):
+                                        item = GifItem()
+                                        item.gif_url = href
+                                        item.gif_title = title_list[index]
+                                        self.dbHelper.saveGifItem(item)
+
+    def isGifUrlAvailable(self,gifUrl):
+        return super(ScJbSpider,self).isGifUrlAvailable(gifUrl)
 
     def requestChildPageList(self, page_url):
         child_list = [page_url]
@@ -103,7 +110,7 @@ class ScJbSpider(BaseGifSpider):
 
 if __name__ == "__main__":
     spider = ScJbSpider()
+    spider.startRequest()
     #spider.requestDetailPage("http://sc.jb51.net/gaoxiaotupian/167074.htm")
     #spider.requestDetailPage("http://sc.jb51.net/gaoxiaotupian/130937.htm")
     # spider.getTotalPageList()
-    spider.requestChildPageList("http://sc.jb51.net/gaoxiaotupian/130937.htm")

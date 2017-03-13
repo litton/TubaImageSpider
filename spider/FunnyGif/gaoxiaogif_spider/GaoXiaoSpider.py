@@ -5,6 +5,8 @@ import requests
 from base_gif_spider.GifSpider import BaseGifSpider
 from base_gif_spider.Items import GifItem
 from db.DBHelper import DBHelper
+import thread
+import time
 import re
 import string
 
@@ -60,11 +62,20 @@ class GaoXiaoGifSpider(BaseGifSpider):
             if srcXhs is not None and len(srcXhs) > 0:
                 for index in range(0,len(srcXhs)):
                     gif_url = srcXhs[index]
+                    if not gif_url.startswith("http:"):
+                        gif_url = self.domain + gif_url
+
                     if gif_url.endswith('.gif'):
                         item = GifItem()
-                        item.gif_url = gif_url
-                        item.gif_title = title
-                        self.dbHelper.saveGifItem(item)
+                        if self.isGifUrlAvailable(gif_url):
+                            item.gif_url = gif_url
+                            item.gif_title = title
+                            self.dbHelper.saveGifItem(item)
+
+
+
+    def isGifUrlAvailable(self,gifUrl):
+        return super(GaoXiaoGifSpider,self).isGifUrlAvailable(gifUrl)
 
     def formatChinese(self, title):
         return title.encode('utf-8')
@@ -75,6 +86,7 @@ class GaoXiaoGifSpider(BaseGifSpider):
             #逆序抓取
             for i in range(len(category_list)):
                 item = category_list[len(category_list) -i -1]
+
                 detail_urls = self.parseCategoryPage(item)
                 for index in range(len(detail_urls)):
                     url = detail_urls[len(detail_urls) - index - 1]
@@ -82,7 +94,9 @@ class GaoXiaoGifSpider(BaseGifSpider):
         else:
             for item in category_list:
                 detail_urls = self.parseCategoryPage(item)
+                time.sleep(10)
                 for url in detail_urls:
+                    time.sleep(10)
                     self.parseGifDetailPage(url)
       #  for item in category_list:
 
@@ -92,4 +106,5 @@ if __name__ == "__main__":
     spider = GaoXiaoGifSpider()
     # spider.parseCategoryPage("http://www.gaoxiaogif.com/all/index_282.html")
     #spider.parseGifDetailPage('http://www.gaoxiaogif.com/dongwugif/8084.html')
-    spider.startRequest()
+    #print spider.isGifUrlAvailable("http://wx1.sinaimg.cn/mw690/a69337f3ly1fdddocf88ig20dt07ne83.gif")
+    spider.startRequest(True)

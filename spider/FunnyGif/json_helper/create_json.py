@@ -27,9 +27,16 @@ class CreateJsonHelper:
         output.flush()
         output.close()
 
+    def writeOkResultJson(self):
+        response_result = {'status': '200'}
+        name = '../../gif_api/sucess.json'
+        output = open(name, 'w')
+        output.write(json.dumps(response_result))
+        output.flush()
+        output.close()
 
     def writeJson(self):
-        items = self.db.getGifItemsLimit(6000,6851)
+        items = self.db.getGifItemsLimit(4500,4800)
         self.writeGifJson(items)
 
 

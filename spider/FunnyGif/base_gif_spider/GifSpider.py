@@ -41,6 +41,17 @@ class BaseGifSpider(object):
         self.pageUrl.split('')
         pass
 
-
+    def isGifUrlAvailable(self,gifUrl):
+        if gifUrl is None:
+            return False
+        if gifUrl is not None :
+            if not gifUrl.startswith('http:'):
+                return False
+            try:
+                response = requests.get(gifUrl);
+                return response.status_code == 200
+            except Exception,ex:
+                print ex
+                return False
     def startRequest(self,reverse=False):
         pass
